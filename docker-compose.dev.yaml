@@ -5,7 +5,20 @@ services:
     build: ./backend
     container_name: django
     command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/usr/src/app/backend
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - .env.dev
+  db:
+    image: postgres
+    container_name: pgdb
+    env_file:
+      - .env.db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+volumes:
+  pg_data:
