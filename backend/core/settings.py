@@ -126,3 +126,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# REDIS RELATED SETTINGS
+REDIS_HOST = 'redis'
+REDIS_PORT = '6379'
+
+# CELERY RELATED SETTINGS
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT

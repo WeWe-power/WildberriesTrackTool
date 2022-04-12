@@ -13,6 +13,7 @@ services:
       - .env.dev
     depends_on:
       - db
+      - redis
   db:
     image: postgres
     container_name: pgdb
@@ -33,6 +34,22 @@ services:
       - pg_admin:/var/lib/pgadmin
     ports:
       - "${PGADMIN_PORT:-5050}:80"
+  redis:
+    image: "redis:alpine"
+    expose:
+      - 6379
+    ports:
+      - "6379:6379"
+  celery:
+    build: ./backend
+    command: celery -A core worker --loglevel=INFO
+    volumes:
+      - ./backend:/usr/src/app/backend
+    env_file:
+      - .env.dev
+    depends_on:
+      - django
+      - redis
 volumes:
   pg_data:
   pg_admin:
