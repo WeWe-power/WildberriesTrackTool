@@ -10,7 +10,10 @@ class ItemSerializer(serializers.ModelSerializer):
         model = Item
         fields = ['id', 'name', 'brand', 'vendor_code', 'price', 'price_with_sale']
 
-# class ItemSerializerWithoutId(serializers.ModelSerializer):
-#     class Meta:
-#         model = Item
-#         fields = ['name', 'brand', 'vendor_code', 'price', 'price_with_sale']
+
+class UserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = '__all__'

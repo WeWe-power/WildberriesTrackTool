@@ -12,6 +12,7 @@ class Item(models.Model):
     vendor_code = models.CharField(max_length=100, help_text='Артикул')
     price = models.IntegerField()
     price_with_sale = models.IntegerField()
+    time_parsed = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -26,7 +27,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
-    products = models.ManyToManyField(Item)
+    products = models.ManyToManyField(Item, related_name='user_items')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name', 'username']
