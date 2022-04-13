@@ -4,3 +4,6 @@ celery
 redis
 djangorestframework
 drf_yasg
+bs4
+requests
+lxml
