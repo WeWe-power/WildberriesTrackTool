@@ -1,4 +1,5 @@
-from rest_framework import generics, mixins, authentication, permissions
+from rest_framework import generics, mixins, authentication, permissions, status
+from rest_framework.response import Response
 
 from tracker.api.serializers import ItemSerializer
 from tracker.models import Item
@@ -21,17 +22,38 @@ class ItemCRUDBase(generics.GenericAPIView):
     lookup_field = 'pk'
 
 
-class ItemListView(ItemCRUDBase, mixins.ListModelMixin, DefaultAuth):
+class ItemListCreateView(
+    ItemCRUDBase, mixins.ListModelMixin, mixins.CreateModelMixin, DefaultAuth
+):
     """
-    Shows all items
+    GET: Shows all items
+    POST: Create new item
     """
+
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
-class ItemRetrieveView(ItemCRUDBase, mixins.RetrieveModelMixin, DefaultAuth):
+
+class ItemRetrieveDestroyUpdateView(
+    ItemCRUDBase, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, DefaultAuth
+):
     """
-    Show details of one item by pk
+    GET: Show details of item
+    DELETE: Deletes item
+    PATCH: updates item
     """
+
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
