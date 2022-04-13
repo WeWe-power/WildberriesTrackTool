@@ -9,7 +9,7 @@ from .managers import UserManager
 class Item(models.Model):
     name = models.CharField(max_length=100, help_text='Наименование товара')
     brand = models.CharField(max_length=100, help_text='Название бренда')
-    article = models.CharField(max_length=100, help_text='Артикул')
+    vendor_code = models.CharField(max_length=100, help_text='Артикул')
     price = models.IntegerField()
     price_with_sale = models.IntegerField()
 
