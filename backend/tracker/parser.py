@@ -26,8 +26,14 @@ def extract_product_info(soup: BeautifulSoup) -> dict[str, str]:
     Extracts all info about product and return dict containing product info,
     exactly: price, sale price, brand, name, vendor  code
     """
-    product_price = ''.join(soup.find('del', class_='price-block__old-price').text.strip().split()[:-1])
     product_price_with_sale = ''.join(soup.find('span', class_='price-block__final-price').text.strip().split()[:-1])
+
+    # if there is no sale then produce price with sale is our price and product price will be none because there
+    # is no block with class price-block__old-price
+    try:
+        product_price = ''.join(soup.find('del', class_='price-block__old-price').text.strip().split()[:-1])
+    except AttributeError:
+        product_price = product_price_with_sale
 
     brand_and_name = soup.find('h1', class_='same-part-kt__header').find_all('span')
     product_brand = brand_and_name[0].text.strip()
