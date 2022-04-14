@@ -3,19 +3,37 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.utils import timezone
 
-from .managers import UserManager
+from .managers import UserManager, GetOrNoneManager
 
 
 class Item(models.Model):
+    vendor_code = models.CharField(max_length=100, help_text='Артикул', unique=True)
     name = models.CharField(max_length=100, help_text='Наименование товара')
     brand = models.CharField(max_length=100, help_text='Название бренда')
-    vendor_code = models.CharField(max_length=100, help_text='Артикул')
+
+    objects = GetOrNoneManager()
+
+    def __str__(self):
+        return str(self.vendor_code)
+
+    def get_price_info(self):
+        price_info_obj = ItemPriceRecord.objects.filter(item=self).last()
+        if price_info_obj:
+            price = price_info_obj.price
+            price_with_sale = price_info_obj.price_with_sale
+            return {
+                'price': price,
+                'price_with_sale': price_with_sale
+            }
+        else:
+            return None
+
+
+class ItemPriceRecord(models.Model):
     price = models.IntegerField()
     price_with_sale = models.IntegerField()
     time_parsed = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, blank=True, null=True, related_name='price_info')
 
 
 class User(AbstractBaseUser, PermissionsMixin):
