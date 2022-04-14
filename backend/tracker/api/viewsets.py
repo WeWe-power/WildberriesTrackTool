@@ -78,10 +78,22 @@ class UserItemList(
         return Response(serializer.data)
 
 
-class UserItemAdd(
+class UserItemAddDelete(
     APIView, DefaultAuth
 ):
 
     def post(self, request, *args, **kwargs):
-        serializer = UserSerializer(self.request.user)
-        WildBerriesProductParser.delay(self.kwargs['pk'], serializer.data)
+        item_id = self.kwargs['pk']
+        item = Item.objects.get_or_none(vendor_code=item_id)
+        if not item:
+            serializer = UserSerializer(self.request.user)
+            WildBerriesProductParser.delay(self.kwargs['pk'], serializer.data)
+            return Response('Started process of adding item to your tracking list, it may take some time....')
+        return Response('You already have item with this article in your tracking list')
+
+    def delete(self, request, *args, **kwargs):
+        item_id = self.kwargs['pk']
+        item = Item.objects.get(vendor_code=item_id)
+        user = self.request.user
+        user.products.remove(item)
+        return Response('Item with article {} deleted from your tracking list'.format(item_id))
