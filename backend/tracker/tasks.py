@@ -5,6 +5,10 @@ from tracker.models import Item, User, ItemPriceRecord
 
 
 class Parser(celery.Task):
+    """
+    Task that parses info about wildberries card page using product vendor_code
+    returns dict containing info about product
+    """
     name = 'WildBerriesProductParser'
 
     def run(self, vendor_code, user_json):
@@ -15,6 +19,11 @@ class Parser(celery.Task):
 
 
 class ItemCreator(celery.Task):
+    """
+    Task that creates an item instance if not exist or gets it if it exist,
+    Then create a item price record instance and assign it to item instance,
+    After assign an item instance to a request user instance
+    """
     name = 'ItemCreator'
 
     def run(self, info, user_json):

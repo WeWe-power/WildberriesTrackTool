@@ -68,7 +68,7 @@ class UserItemList(
     ItemCRUDBase, mixins.ListModelMixin, DefaultAuth
 ):
     """
-    Shows list of all items tracked by user
+    GET: Shows list of all items tracked by user
     """
 
     def get(self, request, *args, **kwargs):
@@ -81,6 +81,10 @@ class UserItemList(
 class UserItemAddDelete(
     APIView, DefaultAuth
 ):
+    """
+    POST: View that adds item to user tracking list and parses it
+    DELETE: Delete item from
+    """
 
     def post(self, request, *args, **kwargs):
         item_id = self.kwargs['pk']

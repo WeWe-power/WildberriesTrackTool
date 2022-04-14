@@ -17,6 +17,9 @@ class Item(models.Model):
         return str(self.vendor_code)
 
     def get_price_info(self):
+        """
+        Getting price and price_with_sale fields of last ItemPriceRecord assigned to this item
+        """
         price_info_obj = ItemPriceRecord.objects.filter(item=self).last()
         if price_info_obj:
             price = price_info_obj.price
