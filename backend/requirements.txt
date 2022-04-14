@@ -8,3 +8,4 @@ bs4
 requests
 lxml
 django-flower
+django-celery-beat

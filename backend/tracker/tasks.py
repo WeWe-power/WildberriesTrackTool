@@ -1,4 +1,6 @@
 import celery
+from celery import shared_task
+
 from core.celery import app
 from tracker.parser import get_product_info
 from tracker.models import Item, User, ItemPriceRecord
@@ -11,7 +13,7 @@ class Parser(celery.Task):
     """
     name = 'WildBerriesProductParser'
 
-    def run(self, vendor_code, user_json):
+    def run(self, vendor_code, user_json=None):
         info = get_product_info(vendor_code)
         if info:
             ItemFabric.delay(info, user_json)
@@ -26,7 +28,7 @@ class ItemCreator(celery.Task):
     """
     name = 'ItemCreator'
 
-    def run(self, info, user_json):
+    def run(self, info, user_json=None):
         item, __ = Item.objects.get_or_create(
             brand=info['brand'],
             vendor_code=info['vendor_code'],
@@ -38,12 +40,28 @@ class ItemCreator(celery.Task):
             item=item,
         )
         item_price_record.save()
-        user = User.objects.get(id=user_json['id'])
-        user.products.add(item)
+
+        # If called by user, we need to assign an item to a user he wants to track
+        if user_json:
+            user = User.objects.get(id=user_json['id'])
+            user.products.add(item)
+        # If called automatically by scheduled task for info parsing, we dont need to make assignment
+        else:
+            pass
+
         return 'Succeeded'
+
+
+@shared_task
+def periodic_info_collection():
+    for vendor_code in Item.objects.only('vendor_code'):
+        WildBerriesParser(vendor_code)
+
+    return 'Succeeded'
 
 
 app.register_task(Parser())
 app.register_task(ItemCreator())
 
 ItemFabric = ItemCreator()
+WildBerriesParser = Parser()

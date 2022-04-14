@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from celery.schedules import crontab
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -151,3 +153,11 @@ REDIS_PORT = '6379'
 # CELERY RELATED SETTINGS
 CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT
 CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT
+
+# CELERY BEAT RELATED SETTINGS
+CELERY_BEAT_SCHEDULE = {
+    "first_task": {
+        "task": "tracker.tasks.periodic_info_collection",
+        "schedule": crontab(minute="*/1"),
+    },
+}

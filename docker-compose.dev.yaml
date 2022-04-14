@@ -42,13 +42,23 @@ services:
       - "6379:6379"
   celery:
     build: ./backend
-    command: celery -A core worker -c 2 --loglevel=INFO
+    command: celery -A core worker -c 3 --loglevel=INFO
     volumes:
       - ./backend:/usr/src/app/
     env_file:
       - .env.dev
     depends_on:
       - django
+      - redis
+  celery-beat:
+    build: ./backend
+    container_name: celery-beat
+    command: celery -A core beat -l info
+    volumes:
+      - ./backend:/usr/src/app/
+    env_file:
+      - .env.dev
+    depends_on:
       - redis
   flower:
     image: mher/flower
