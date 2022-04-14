@@ -7,3 +7,4 @@ drf_yasg
 bs4
 requests
 lxml
+django-flower
