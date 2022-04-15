@@ -17,7 +17,8 @@ class Parser(celery.Task):
         info = get_product_info(vendor_code)
         if info:
             ItemFabric.delay(info, user_json)
-        return 'Succeeded'
+            return 'Succeeded'
+        return 'Unsuccessfully, can\'t find item with vendor code {}'.format(vendor_code)
 
 
 class ItemCreator(celery.Task):
@@ -54,6 +55,9 @@ class ItemCreator(celery.Task):
 
 @shared_task
 def periodic_info_collection():
+    """
+    Task that collects data for every instance in item
+    """
     for vendor_code in Item.objects.only('vendor_code'):
         WildBerriesParser(vendor_code)
 

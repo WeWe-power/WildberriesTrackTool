@@ -10,6 +10,9 @@ headers = {
 }
 parser = 'lxml'
 
+# Pattern for url without product vendor code
+url_pattern = 'https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=GP'
+
 
 def get_data(url: str) -> str | None:
     """
@@ -58,8 +61,7 @@ def get_product_info(vendor_code: str) -> dict[str, str] | None:
 
     """
 
-    # Pattern for url without product vendor code
-    url_pattern = 'https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=GP'
+    # insert vendor_code into url patterns
     url = url_pattern.format(vendor_code)
 
     html = get_data(url)

@@ -89,6 +89,7 @@ class UserItemAddDelete(
     def post(self, request, *args, **kwargs):
         item_id = self.kwargs['pk']
         item = Item.objects.get_or_none(vendor_code=item_id)
+
         if not item:
             serializer = UserSerializer(self.request.user)
             WildBerriesProductParser.delay(self.kwargs['pk'], serializer.data)

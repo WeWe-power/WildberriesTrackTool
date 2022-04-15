@@ -158,6 +158,6 @@ CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT
 CELERY_BEAT_SCHEDULE = {
     "first_task": {
         "task": "tracker.tasks.periodic_info_collection",
-        "schedule": crontab(minute="*/1"),
+        "schedule": crontab(hour="*/1"),
     },
 }
