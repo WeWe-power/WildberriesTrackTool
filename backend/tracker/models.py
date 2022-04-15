@@ -10,6 +10,7 @@ class Item(models.Model):
     vendor_code = models.CharField(max_length=100, help_text='Артикул', unique=True)
     name = models.CharField(max_length=100, help_text='Наименование товара')
     brand = models.CharField(max_length=100, help_text='Название бренда')
+    provider = models.CharField(max_length=100, help_text='Поставщик')
 
     objects = GetOrNoneManager()
 
@@ -37,6 +38,9 @@ class ItemPriceRecord(models.Model):
     price_with_sale = models.IntegerField()
     time_parsed = models.DateTimeField(auto_now_add=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, blank=True, null=True, related_name='price_info')
+
+    def __str__(self):
+        return 'Запись цены товара {} {} от {}'.format(self.item.name[:20], self.item.vendor_code, self.time_parsed)
 
 
 class User(AbstractBaseUser, PermissionsMixin):

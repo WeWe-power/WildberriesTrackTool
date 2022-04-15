@@ -10,7 +10,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['id', 'name', 'brand', 'vendor_code', 'price', 'price_with_sale']
+        fields = ['id', 'name', 'brand', 'vendor_code', 'price', 'price_with_sale', 'provider']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

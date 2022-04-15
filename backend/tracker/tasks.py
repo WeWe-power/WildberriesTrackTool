@@ -4,6 +4,7 @@ from celery import shared_task
 from core.celery import app
 from tracker.parser import get_product_info
 from tracker.models import Item, User, ItemPriceRecord
+from django.utils import timezone
 
 
 class Parser(celery.Task):
@@ -18,7 +19,7 @@ class Parser(celery.Task):
         if info:
             ItemFabric.delay(info, user_json)
             return 'Succeeded'
-        return 'Unsuccessfully, can\'t find item with vendor code {}'.format(vendor_code)
+        return "Unsuccessfully, can't find item with vendor code {}".format(vendor_code)
 
 
 class ItemCreator(celery.Task):
@@ -34,10 +35,12 @@ class ItemCreator(celery.Task):
             brand=info['brand'],
             vendor_code=info['vendor_code'],
             name=info['name'],
+            provider=info['provider'],
         )
         item_price_record = ItemPriceRecord.objects.create(
             price=info['price'],
             price_with_sale=info['price_with_sale'],
+            time_parsed=timezone.now,
             item=item,
         )
         item_price_record.save()
