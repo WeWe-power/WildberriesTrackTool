@@ -143,7 +143,7 @@ def wait_for_elems(
 
 def get_product_info(vendor_code: int | str) -> dict[str, str] | bool:
     """
-    Parse wildberries product info by product url,
+    Parse wildberries product info by product url
     """
 
     # place vendor code into our url pattern

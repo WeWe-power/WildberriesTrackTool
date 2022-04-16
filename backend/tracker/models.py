@@ -8,9 +8,9 @@ from .managers import UserManager, GetOrNoneManager
 
 class Item(models.Model):
     vendor_code = models.CharField(max_length=100, help_text='Артикул', unique=True)
-    name = models.CharField(max_length=100, help_text='Наименование товара')
-    brand = models.CharField(max_length=100, help_text='Название бренда')
-    provider = models.CharField(max_length=100, help_text='Поставщик')
+    name = models.CharField(max_length=100, help_text='Наименование товара', blank=True, null=True)
+    brand = models.CharField(max_length=100, help_text='Название бренда', blank=True, null=True)
+    provider = models.CharField(max_length=100, help_text='Поставщик', blank=True, null=True)
 
     objects = GetOrNoneManager()
 

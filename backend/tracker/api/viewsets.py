@@ -90,8 +90,7 @@ class UserItemAddDelete(
     def post(self, request, *args, **kwargs):
         item_id = self.kwargs['pk']
         item = Item.objects.get_or_none(vendor_code=item_id)
-
-        if not item:
+        if item is not None:
             serializer = UserSerializer(self.request.user)
             WildBerriesProductParser.delay(self.kwargs['pk'], serializer.data)
             return Response('Started process of adding item to your tracking list, it may take some time....', status=status.HTTP_202_ACCEPTED)

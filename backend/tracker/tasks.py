@@ -31,12 +31,16 @@ class ItemCreator(celery.Task):
     name = 'ItemCreator'
 
     def run(self, info, user_json=None):
-        item, __ = Item.objects.get_or_create(
-            brand=info['brand'],
+        item, created = Item.objects.get_or_create(
             vendor_code=info['vendor_code'],
-            name=info['name'],
-            provider=info['provider'],
         )
+
+        if not item.name:
+            item.brand = info['brand']
+            item.name = info['name']
+            item.provider = info['provider']
+            item.save()
+
         item_price_record, created = ItemPriceRecord.objects.get_or_create(
             price=info['price'],
             price_with_sale=info['price_with_sale'],
