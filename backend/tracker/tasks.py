@@ -18,7 +18,7 @@ class Parser(celery.Task):
         info = get_product_info(vendor_code)
         if info:
             ItemFabric.delay(info, user_json)
-            return 'Succeeded'
+            return info
         return "Unsuccessfully, can't find item with vendor code {}".format(vendor_code)
 
 
@@ -31,11 +31,11 @@ class ItemCreator(celery.Task):
     name = 'ItemCreator'
 
     def run(self, info, user_json=None):
-        item, created = Item.objects.get_or_create(
+        item, __ = Item.objects.get_or_create(
             vendor_code=info['vendor_code'],
         )
 
-        if not item.name:
+        if (item.brand != info['brand']) or (item.name != info['name']) or (item.provider != info['provider']):
             item.brand = info['brand']
             item.name = info['name']
             item.provider = info['provider']

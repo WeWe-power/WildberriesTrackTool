@@ -45,7 +45,6 @@ class ItemPriceRecord(models.Model):
 
 class User(AbstractBaseUser, PermissionsMixin):
     """User model."""
-    name = models.CharField(max_length=100)
     username = models.CharField(max_length=25, unique=True)
     email = models.EmailField(unique=True)
     is_staff = models.BooleanField(default=False)
@@ -55,6 +54,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     products = models.ManyToManyField(Item, related_name='user_items')
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'username']
+    REQUIRED_FIELDS = ['username']
 
     objects = UserManager()

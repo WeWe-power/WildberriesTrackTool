@@ -3,15 +3,15 @@ from bs4 import BeautifulSoup, SoupStrainer
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException, InvalidArgumentException, NoSuchElementException
+from selenium.common.exceptions import InvalidArgumentException, NoSuchElementException, StaleElementReferenceException
 
 parser = 'lxml'
 
 #blocks that contains tags and divs of dynamicly loaded provider
-provider_element_classes_and_tags= {
-    'span': 'price-block__final-price',
-    'del': 'price-block__old-price',
-}
+provider_element_classes = [
+    'seller__name',
+    'seller-details__title',
+]
 
 # url pattern with space for item vendor code
 url_pattern = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI"
@@ -52,7 +52,7 @@ def get_soup_parser(
     return soup
 
 
-def get_data(url: str) -> tuple | None:
+def get_data(url: str) -> tuple | bool:
     """
     Gets html page including dynamically loaded by js content
     """
@@ -67,7 +67,7 @@ def get_data(url: str) -> tuple | None:
         return False
 
     # Tries to find producer info or returns None if cannot find( it may be caused by wrong link )
-    provider_elem_class = wait_for_elems(driver, provider_element_classes_and_tags)
+    provider_elem_class = wait_for_elems(driver, provider_element_classes)
 
     # Getting html of page and destroying driver session
     html = driver.page_source
@@ -78,7 +78,7 @@ def get_data(url: str) -> tuple | None:
 
 def extract_product_info(
         html: str,
-        provider_elem_class_and_tag: dict
+        provider: str,
 ) -> dict[str, str]:
     """
     Extracts all info about product and return dict containing product info,
@@ -86,8 +86,12 @@ def extract_product_info(
     """
 
     soup = get_soup_parser(html)
-
     product_price_with_sale = ''.join(soup.find('span', class_='price-block__final-price').text.strip().split()[:-1])
+
+    # Check if out of order
+    if product_price_with_sale == '':
+        product_price_with_sale = 0
+
     # if there is no sale then produce price with sale is our price and product price will be none because there
     # is no block with class price-block__old-price
     try:
@@ -100,8 +104,7 @@ def extract_product_info(
     product_name = brand_and_name[1].text.strip()
 
     product_vendor_code = soup.find('span', id='productNmId').text.strip()
-    tag, element_class = next(iter(provider_elem_class_and_tag.items()))
-    provider = soup.find(tag, class_=element_class).text.strip()
+    provider = provider.strip()
 
     product_detail = {
         'brand': product_brand,
@@ -117,8 +120,8 @@ def extract_product_info(
 
 def wait_for_elems(
         driver: webdriver,
-        elems_classes_with_tags_list: dict,
-) -> bool | dict:
+        elems_classes_with_tags_list: list,
+) -> bool | str:
     """
     Functions that waits for one of the elements from list to be found on the page,
     if nothing found in 5 seconds or page contains 404 error then returns false
@@ -126,14 +129,14 @@ def wait_for_elems(
     try:
         driver.find_element(By.CLASS_NAME, 'content404')
         return False
-    except NoSuchElementException:
+    except NoSuchElementException or StaleElementReferenceException:
         start_time = time.time()
         time_now = time.time()
         while time_now - start_time < 5:
-            for elem_tag, elem_class in elems_classes_with_tags_list.items():
+            for elem_class in elems_classes_with_tags_list:
                 try:
-                    driver.find_element(By.CLASS_NAME, elem_class)
-                    return {elem_tag: elem_class}
+                    element = driver.find_element(By.CLASS_NAME, elem_class)
+                    return element.text
                 except NoSuchElementException:
                     pass
             time.sleep(0.05)
@@ -148,12 +151,13 @@ def get_product_info(vendor_code: int | str) -> dict[str, str] | bool:
 
     # place vendor code into our url pattern
     url = url_pattern.format(vendor_code)
-    html, provider_elem_class_and_tag = get_data(url)
-    if html and provider_elem_class_and_tag:
+    html, provider = get_data(url)
+    if html and provider:
         # getting product details
-        product_detail = extract_product_info(html, provider_elem_class_and_tag)
+        product_detail = extract_product_info(html, provider)
 
         # writing data to output file
         return product_detail
     else:
         return False
+
