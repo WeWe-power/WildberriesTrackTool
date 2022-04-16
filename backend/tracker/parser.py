@@ -129,7 +129,7 @@ def wait_for_elems(
     try:
         driver.find_element(By.CLASS_NAME, 'content404')
         return False
-    except NoSuchElementException or StaleElementReferenceException:
+    except (NoSuchElementException, StaleElementReferenceException) as error:
         start_time = time.time()
         time_now = time.time()
         while time_now - start_time < 5:
