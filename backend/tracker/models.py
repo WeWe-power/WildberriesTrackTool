@@ -34,6 +34,10 @@ class Item(models.Model):
 
 
 class ItemPriceRecord(models.Model):
+    vendor_code = models.CharField(max_length=100, help_text='Артикул')
+    name = models.CharField(max_length=100, help_text='Наименование товара', blank=True, null=True)
+    brand = models.CharField(max_length=100, help_text='Название бренда', blank=True, null=True)
+    provider = models.CharField(max_length=100, help_text='Поставщик', blank=True, null=True)
     price = models.IntegerField()
     price_with_sale = models.IntegerField()
     time_parsed = models.DateTimeField(auto_now_add=True)

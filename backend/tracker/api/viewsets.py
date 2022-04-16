@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from tracker.api.serializers import ItemSerializer, UserSerializer
+from tracker.api.serializers import ItemSerializer, UserSerializer, ItemPriceRecordSerializer
 from tracker.models import Item
 
 from tracker.tasks import Parser
@@ -93,7 +93,8 @@ class UserItemAddDelete(
         if item is None:
             serializer = UserSerializer(self.request.user)
             WildBerriesProductParser.delay(self.kwargs['pk'], serializer.data)
-            return Response('Started process of adding item to your tracking list, it may take some time....', status=status.HTTP_202_ACCEPTED)
+            return Response('Started process of adding item to your tracking list, it may take some time....',
+                            status=status.HTTP_202_ACCEPTED)
         return Response('You already have item with this article in your tracking list', status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
@@ -101,4 +102,25 @@ class UserItemAddDelete(
         item = Item.objects.get(vendor_code=item_id)
         user = self.request.user
         user.products.remove(item)
-        return Response('Item with article {} deleted from your tracking list'.format(item_id), status=status.HTTP_200_OK)
+        return Response('Item with article {} deleted from your tracking list'.format(item_id),
+                        status=status.HTTP_200_OK)
+
+
+class GetItemPriceHistory(
+    APIView, DefaultAuth
+):
+    """
+    POST: View that adds item to user tracking list and parses it
+    DELETE: Delete item from
+    """
+
+    def get(self, request, *args, **kwargs):
+        vendor_code = self.kwargs['pk']
+        item = Item.objects.get_or_none(vendor_code=vendor_code)
+        if item is None:
+            return Response('Item with vendor code {} not found'.format(vendor_code))
+        prices_dict = {}
+        for item_price_record in item.price_info.order_by('-time_parsed'):
+            serializer = ItemPriceRecordSerializer(item_price_record)
+            prices_dict[str(item_price_record.time_parsed)] = serializer.data
+        return Response(prices_dict)

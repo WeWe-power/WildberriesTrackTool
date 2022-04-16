@@ -42,6 +42,9 @@ class ItemCreator(celery.Task):
             item.save()
 
         item_price_record, created = ItemPriceRecord.objects.get_or_create(
+            brand=info['brand'],
+            name=info['name'],
+            provider=info['provider'],
             price=info['price'],
             price_with_sale=info['price_with_sale'],
             item=item,

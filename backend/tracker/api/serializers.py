@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from tracker.models import Item, User
+from tracker.models import Item, User, ItemPriceRecord
 
 
 class ItemSerializer(serializers.ModelSerializer):
@@ -26,3 +26,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
+
+class ItemPriceRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ItemPriceRecord
+        fields = ['name', 'brand', 'vendor_code', 'price', 'price_with_sale']

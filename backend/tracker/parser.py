@@ -129,7 +129,7 @@ def wait_for_elems(
     try:
         driver.find_element(By.CLASS_NAME, 'content404')
         return False
-    except (NoSuchElementException, StaleElementReferenceException) as error:
+    except (NoSuchElementException, StaleElementReferenceException):
         start_time = time.time()
         time_now = time.time()
         while time_now - start_time < 5:
@@ -137,7 +137,7 @@ def wait_for_elems(
                 try:
                     element = driver.find_element(By.CLASS_NAME, elem_class)
                     return element.text
-                except NoSuchElementException:
+                except (NoSuchElementException, StaleElementReferenceException):
                     pass
             time.sleep(0.05)
             time_now = time.time()
