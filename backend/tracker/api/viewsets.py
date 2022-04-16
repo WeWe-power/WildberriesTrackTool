@@ -1,6 +1,7 @@
 from rest_framework import generics, mixins, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
 from tracker.api.serializers import ItemSerializer, UserSerializer
 from tracker.models import Item
@@ -93,12 +94,12 @@ class UserItemAddDelete(
         if not item:
             serializer = UserSerializer(self.request.user)
             WildBerriesProductParser.delay(self.kwargs['pk'], serializer.data)
-            return Response('Started process of adding item to your tracking list, it may take some time....')
-        return Response('You already have item with this article in your tracking list')
+            return Response('Started process of adding item to your tracking list, it may take some time....', status=status.HTTP_202_ACCEPTED)
+        return Response('You already have item with this article in your tracking list', status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         item_id = self.kwargs['pk']
         item = Item.objects.get(vendor_code=item_id)
         user = self.request.user
         user.products.remove(item)
-        return Response('Item with article {} deleted from your tracking list'.format(item_id))
+        return Response('Item with article {} deleted from your tracking list'.format(item_id), status=status.HTTP_200_OK)

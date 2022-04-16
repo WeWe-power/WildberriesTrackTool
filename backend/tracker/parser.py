@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup, SoupStrainer
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException, InvalidArgumentException
+from selenium.common.exceptions import TimeoutException, InvalidArgumentException, NoSuchElementException
 
 parser = 'lxml'
 
@@ -64,7 +64,7 @@ def get_data(url: str) -> tuple | None:
     try:
         driver.get(url)
     except InvalidArgumentException:
-        return None
+        return False
 
     # Tries to find producer info or returns None if cannot find( it may be caused by wrong link )
     provider_elem_class = wait_for_elems(driver, provider_element_classes_and_tags)
@@ -121,37 +121,39 @@ def wait_for_elems(
 ) -> bool | dict:
     """
     Functions that waits for one of the elements from list to be found on the page,
-    if nothing found in 5 seconds returns false
+    if nothing found in 5 seconds or page contains 404 error then returns false
     """
-    start_time = time.time()
-    time_now = time.time()
-    while time_now - start_time < 5:
-        for elem_tag, elem_class in elems_classes_with_tags_list.items():
-            try:
-                driver.find_element(By.CLASS_NAME, elem_class)
-                return {elem_tag: elem_class}
-            except Exception as ex_:
-                pass
-        time.sleep(0.05)
+    try:
+        driver.find_element(By.CLASS_NAME, 'content404')
+        return False
+    except NoSuchElementException:
+        start_time = time.time()
         time_now = time.time()
+        while time_now - start_time < 5:
+            for elem_tag, elem_class in elems_classes_with_tags_list.items():
+                try:
+                    driver.find_element(By.CLASS_NAME, elem_class)
+                    return {elem_tag: elem_class}
+                except NoSuchElementException:
+                    pass
+            time.sleep(0.05)
+            time_now = time.time()
     return False
 
 
-def get_product_info(vendor_code: int | str) -> dict[str, str] | None:
+def get_product_info(vendor_code: int | str) -> dict[str, str] | bool:
     """
     Parse wildberries product info by product url,
-
     """
 
     # place vendor code into our url pattern
     url = url_pattern.format(vendor_code)
     html, provider_elem_class_and_tag = get_data(url)
-
-    if html:
+    if html and provider_elem_class_and_tag:
         # getting product details
         product_detail = extract_product_info(html, provider_elem_class_and_tag)
 
         # writing data to output file
         return product_detail
     else:
-        return None
+        return False
