@@ -37,23 +37,22 @@ class ItemCreator(celery.Task):
             name=info['name'],
             provider=info['provider'],
         )
-        item_price_record = ItemPriceRecord.objects.create(
+        item_price_record, created = ItemPriceRecord.objects.get_or_create(
             price=info['price'],
             price_with_sale=info['price_with_sale'],
-            time_parsed=timezone.now,
             item=item,
         )
-        item_price_record.save()
 
         # If called by user, we need to assign an item to a user he wants to track
         if user_json:
             user = User.objects.get(id=user_json['id'])
             user.products.add(item)
-        # If called automatically by scheduled task for info parsing, we dont need to make assignment
-        else:
-            pass
 
-        return 'Succeeded'
+        if created:
+            item_price_record.time_parsed = timezone.now
+            return 'Succeeded'
+
+        return 'Already have an item price record with same price values'
 
 
 @shared_task
@@ -61,8 +60,8 @@ def periodic_info_collection():
     """
     Task that collects data for every instance in item
     """
-    for vendor_code in Item.objects.only('vendor_code'):
-        WildBerriesParser(vendor_code)
+    for item in Item.objects.only('vendor_code'):
+        WildBerriesParser.delay(item.vendor_code)
 
     return 'Succeeded'
 

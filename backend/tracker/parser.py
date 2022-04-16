@@ -7,17 +7,19 @@ from selenium.common.exceptions import TimeoutException, InvalidArgumentExceptio
 
 parser = 'lxml'
 
+#blocks that contains tags and divs of dynamicly loaded provider
 provider_element_classes_and_tags= {
     'span': 'price-block__final-price',
     'del': 'price-block__old-price',
 }
 
+# url pattern with space for item vendor code
 url_pattern = "https://www.wildberries.ru/catalog/{}/detail.aspx?targetUrl=MI"
 
 
 def get_web_driver() -> webdriver.Chrome:
     """
-    Getting selenium webdriver that make hidden browser operations and has hidden webdriver flag
+    Getting selenium webdriver that make background browser operations
     """
     options = Options()
     options.add_argument('--headless')

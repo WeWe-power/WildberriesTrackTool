@@ -43,7 +43,7 @@ services:
       - "6379:6379"
   celery:
     build: ./backend
-    command: celery -A core worker -c 3 --loglevel=INFO
+    command: celery -A core worker -c 6 --loglevel=INFO
     volumes:
       - ./backend:/usr/src/app/
     env_file:
