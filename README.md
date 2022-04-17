@@ -16,3 +16,9 @@ docker-compose -f docker-compose.dev.yaml up
 ```
 docker-compose -f docker-compose.dev.yaml up --build
 ```
+URLS:
+- localhost:8000/admin : Django admin panel
+- localhost:8000/api/docs/swagger : API docs swagger UI
+- localhost:5050 : PGadmin
+- localhost:8888 : Flower - celery task monitoring tool
+- localhost:4444 : Selenium hub
