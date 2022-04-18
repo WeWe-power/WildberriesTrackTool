@@ -1,7 +1,8 @@
 ## WILDBERRIES PRODUCT CHANGES TRACKER
 
 #### Briefly about project: 
-- Allows users to track changaes is wildberries products selected by them over time
+- Product was created to track changes in wildberries product over time
+- User can add an item to track list, information about this item will be collected every hour, then it can be accessed by an api endpoint 
 
 To run app in development:
 - First step: build the project with following command
