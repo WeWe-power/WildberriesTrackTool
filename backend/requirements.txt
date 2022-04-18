@@ -9,3 +9,4 @@ selenium
 lxml
 django-flower
 django-celery-beat
+django-coverage

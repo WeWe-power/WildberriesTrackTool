@@ -98,12 +98,14 @@ class UserItemAddDelete(
         return Response('You already have item with this article in your tracking list', status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
-        item_id = self.kwargs['pk']
-        item = Item.objects.get(vendor_code=item_id)
-        user = self.request.user
-        user.products.remove(item)
-        return Response('Item with article {} deleted from your tracking list'.format(item_id),
-                        status=status.HTTP_200_OK)
+        vendor_code = self.kwargs['pk']
+        item = Item.objects.get_or_none(vendor_code=vendor_code)
+        if item:
+            user = self.request.user
+            user.products.remove(item)
+            return Response('Item with article {} deleted from your tracking list'.format(vendor_code),
+                            status=status.HTTP_200_OK)
+        return Response('Item with vendor code {} not found'.format(vendor_code), status=status.HTTP_404_NOT_FOUND)
 
 
 class GetItemPriceHistory(
@@ -118,7 +120,7 @@ class GetItemPriceHistory(
         vendor_code = self.kwargs['pk']
         item = Item.objects.get_or_none(vendor_code=vendor_code)
         if item is None:
-            return Response('Item with vendor code {} not found'.format(vendor_code))
+            return Response('Item with vendor code {} not found'.format(vendor_code), status=status.HTTP_404_NOT_FOUND)
         prices_dict = {}
         for item_price_record in item.price_info.order_by('-time_parsed'):
             serializer = ItemPriceRecordSerializer(item_price_record)
