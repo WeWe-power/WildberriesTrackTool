@@ -23,3 +23,8 @@ URLS:
 - localhost:5050 : PGadmin
 - localhost:8888 : Flower - celery task monitoring tool
 - localhost:4444 : Selenium hub
+
+Admin credentials:
+ -  email: admin@gmail.com
+ -  username: admin
+ -  password: admin
