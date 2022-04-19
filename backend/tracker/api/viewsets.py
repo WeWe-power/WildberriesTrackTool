@@ -122,7 +122,7 @@ class UserItemAddDelete(
         user = self.request.user
         if item is None:
             serializer = UserSerializer(user)
-            WildBerriesProductParser.delay(self.kwargs['pk'], serializer.data)
+            WildBerriesProductParser.delay(self.kwargs['vendor_code'], serializer.data)
             return Response('Started process of adding item to your tracking list, it may take some time....',
                             status=status.HTTP_202_ACCEPTED)
         elif item not in user.products.all():

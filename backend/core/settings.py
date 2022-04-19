@@ -94,6 +94,7 @@ DATABASES = {
     }
 }
 
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -159,6 +160,6 @@ CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT
 CELERY_BEAT_SCHEDULE = {
     "first_task": {
         "task": "tracker.tasks.periodic_info_collection",
-        "schedule": crontab(hour="*/1"),
+        "schedule": crontab(minute='0', hour='*/2'),
     },
 }
