@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from tracker.api.serializers import ItemSerializer, UserSerializer, ItemPriceRecordSerializer
-from tracker.models import Item
+from tracker.models import Item, User
 
 from tracker.tasks import Parser
 
@@ -25,7 +25,8 @@ class ItemCRUDBase(generics.GenericAPIView):
     """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
-    lookup_field = 'pk'
+    lookup_field = 'vendor_code'
+    lookup_url_kwarg = 'vendor_code'
 
 
 class ItemListCreateView(
@@ -64,6 +65,22 @@ class ItemRetrieveDestroyUpdateView(
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
+class CreateUserView(generics.CreateAPIView):
+    """
+    View that holds user creation
+    """
+    model = User
+    permission_classes = [
+        permissions.AllowAny
+    ]
+    serializer_class = UserSerializer
+
 
 class UserItemList(
     ItemCRUDBase, mixins.ListModelMixin, DefaultAuth
@@ -88,7 +105,7 @@ class UserItemAddDelete(
     """
 
     def post(self, request, *args, **kwargs):
-        item_id = self.kwargs['pk']
+        item_id = self.kwargs['vendor_code']
         item = Item.objects.get_or_none(vendor_code=item_id)
         if item is None:
             serializer = UserSerializer(self.request.user)
@@ -98,7 +115,7 @@ class UserItemAddDelete(
         return Response('You already have item with this article in your tracking list', status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
-        vendor_code = self.kwargs['pk']
+        vendor_code = self.kwargs['vendor_code']
         item = Item.objects.get_or_none(vendor_code=vendor_code)
         if item:
             user = self.request.user
@@ -117,7 +134,7 @@ class GetItemPriceHistory(
     """
 
     def get(self, request, *args, **kwargs):
-        vendor_code = self.kwargs['pk']
+        vendor_code = self.kwargs['vendor_code']
         item = Item.objects.get_or_none(vendor_code=vendor_code)
         if item is None:
             return Response('Item with vendor code {} not found'.format(vendor_code), status=status.HTTP_404_NOT_FOUND)

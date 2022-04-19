@@ -22,10 +22,20 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
+    password = serializers.CharField(write_only=True)
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+        )
+
+        return user
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ("id", "username", "email", "password",)
 
 
 class ItemPriceRecordSerializer(serializers.ModelSerializer):

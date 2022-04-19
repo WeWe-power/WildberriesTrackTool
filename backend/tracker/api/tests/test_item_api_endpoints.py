@@ -76,15 +76,15 @@ class GetItemDetailsTest(TestData):
     """
     Test GET item details
     """
-    def test_get_item_details_valid_pk(self):
-        response = client.get(reverse('item-detail', kwargs={'pk': 1}), **self.get_auth_header())
+    def test_get_item_details_valid_vendor_code(self):
+        response = client.get(reverse('item-detail', kwargs={'vendor_code': 28}), **self.get_auth_header())
         item = Item.objects.get(id=1)
         serializer = ItemSerializer(item)
         self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_item_details_invalid_pk(self):
-        response = client.get(reverse('item-detail', kwargs={'pk': 20}), **self.get_auth_header())
+    def test_get_item_details_invalid_vendor_code(self):
+        response = client.get(reverse('item-detail', kwargs={'vendor_code': 20}), **self.get_auth_header())
         self.assertEqual(response.data['detail'].title(), 'Not Found.')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -94,8 +94,8 @@ class GetItemPriceHistoryTest(TestData):
     Test GET item price history
     """
 
-    def test_get_item_price_history_valid_pk(self):
-        response = client.get(reverse('item-price-history', kwargs={'pk': 28}), **self.get_auth_header())
+    def test_get_item_price_history_valid_vendor_code(self):
+        response = client.get(reverse('item-price-history', kwargs={'vendor_code': 28}), **self.get_auth_header())
         item = Item.objects.get(id=1)
         item_record = ItemPriceRecord.objects.get(item=item)
         serializer = ItemPriceRecordSerializer(item_record)
@@ -103,6 +103,6 @@ class GetItemPriceHistoryTest(TestData):
         self.assertEqual(response.data, price_history)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_item_price_history_invalid_pk(self):
-        response = client.get(reverse('item-price-history', kwargs={'pk': 20}), **self.get_auth_header())
+    def test_get_item_price_history_invalid_vendor_code(self):
+        response = client.get(reverse('item-price-history', kwargs={'vendor_code': 20}), **self.get_auth_header())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
