@@ -38,15 +38,17 @@ class ItemCRUDBase(generics.GenericAPIView):
 class ItemListCreateView(
     ItemCRUDBase, mixins.ListModelMixin, mixins.CreateModelMixin, DefaultAuth
 ):
-    """
-    GET: Shows all items
-    POST: Create new item
-    """
 
     def get(self, request, *args, **kwargs):
+        """
+        Shows all items
+        """
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        """
+        Create new item
+        """
         return self.create(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -59,22 +61,29 @@ class ItemListCreateView(
 class ItemRetrieveDestroyUpdateView(
     ItemCRUDBase, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, DefaultAuth
 ):
-    """
-    GET: Show details of item
-    DELETE: Deletes item
-    PATCH: updates item
-    """
 
     def get(self, request, *args, **kwargs):
+        """
+        Show details of item
+        """
         return self.retrieve(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
+        """
+        Deletes item
+        """
         return self.destroy(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
+        """
+        Updates item
+        """
         return self.update(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
+        """
+        Partially updates an item
+        """
         return self.partial_update(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
@@ -98,7 +107,7 @@ class UserItemList(
     ItemCRUDBase, mixins.ListModelMixin, DefaultAuth
 ):
     """
-    GET: Shows list of all items tracked by user
+    Shows list of all items tracked by user
     """
 
     def get(self, request, *args, **kwargs):
@@ -111,12 +120,11 @@ class UserItemList(
 class UserItemAddDelete(
     APIView, DefaultAuth
 ):
-    """
-    POST: View that adds item to user tracking list and parses it
-    DELETE: Delete item from
-    """
 
     def post(self, request, *args, **kwargs):
+        """
+        Adds item to user tracking list and parses it
+        """
         item_id = self.kwargs['vendor_code']
         item = Item.objects.get_or_none(vendor_code=item_id)
         user = self.request.user
@@ -131,6 +139,9 @@ class UserItemAddDelete(
         return Response('You already have item with this article in your tracking list', status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
+        """
+        Deletes item from user tracking list
+        """
         vendor_code = self.kwargs['vendor_code']
         item = Item.objects.get_or_none(vendor_code=vendor_code)
         if item:
@@ -145,8 +156,7 @@ class GetItemPriceHistory(
     APIView, DefaultAuth
 ):
     """
-    POST: View that adds item to user tracking list and parses it
-    DELETE: Delete item from
+    Returns item price history
     """
 
     def get(self, request, *args, **kwargs):
