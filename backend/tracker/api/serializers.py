@@ -3,10 +3,13 @@ from rest_framework import serializers
 from tracker.models import Item, User, ItemPriceRecord
 
 
-class ItemSerializer(serializers.ModelSerializer):
+class GetUpdateItemSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     price = serializers.IntegerField(read_only=True)
     price_with_sale = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(required=False)
+    brand = serializers.CharField(required=False)
+    provider = serializers.CharField(required=False)
 
     class Meta:
         model = Item
@@ -15,9 +18,19 @@ class ItemSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         price_info_dict = instance.get_price_info()
-        data["price"] = price_info_dict['price']
-        data["price_with_sale"] = price_info_dict['price_with_sale']
+        if price_info_dict:
+            data["price"] = price_info_dict['price']
+            data["price_with_sale"] = price_info_dict['price_with_sale']
+        else:
+            data["price"] = 0
+            data["price_with_sale"] = 0
         return data
+
+
+class CreateDeleteItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ['vendor_code']
 
 
 class UserSerializer(serializers.ModelSerializer):

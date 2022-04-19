@@ -38,8 +38,8 @@ class ItemPriceRecord(models.Model):
     name = models.CharField(max_length=100, help_text='Наименование товара', blank=True, null=True)
     brand = models.CharField(max_length=100, help_text='Название бренда', blank=True, null=True)
     provider = models.CharField(max_length=100, help_text='Поставщик', blank=True, null=True)
-    price = models.IntegerField()
-    price_with_sale = models.IntegerField()
+    price = models.IntegerField(default=0)
+    price_with_sale = models.IntegerField(default=0)
     time_parsed = models.DateTimeField(auto_now_add=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, blank=True, null=True, related_name='price_info')
 

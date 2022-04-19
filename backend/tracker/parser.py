@@ -7,7 +7,7 @@ from selenium.common.exceptions import InvalidArgumentException, NoSuchElementEx
 
 parser = 'lxml'
 
-#blocks that contains tags and divs of dynamicly loaded provider
+# blocks that contains tags and divs of dynamicly loaded provider
 provider_element_classes = [
     'seller__name',
     'seller-details__title',
@@ -160,4 +160,3 @@ def get_product_info(vendor_code: int | str) -> dict[str, str] | bool:
         return product_detail
     else:
         return False
-

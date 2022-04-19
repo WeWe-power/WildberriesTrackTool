@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from tracker.api.serializers import ItemSerializer, UserSerializer, ItemPriceRecordSerializer
+from tracker.api.serializers import GetUpdateItemSerializer, CreateDeleteItemSerializer, UserSerializer, \
+    ItemPriceRecordSerializer
 from tracker.models import Item, User
 
 from tracker.tasks import Parser
@@ -24,9 +25,14 @@ class ItemCRUDBase(generics.GenericAPIView):
     Mixin that contains base variables for CRUD views for model items
     """
     queryset = Item.objects.all()
-    serializer_class = ItemSerializer
     lookup_field = 'vendor_code'
     lookup_url_kwarg = 'vendor_code'
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET' or self.request.method == 'PUT' or self.request.method == 'PATCH':
+            return GetUpdateItemSerializer
+        if self.request.method == 'DELETE' or self.request.method == 'POST':
+            return CreateDeleteItemSerializer
 
 
 class ItemListCreateView(
@@ -42,6 +48,12 @@ class ItemListCreateView(
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetUpdateItemSerializer
+        if self.request.method == 'POST':
+            return CreateDeleteItemSerializer
 
 
 class ItemRetrieveDestroyUpdateView(
@@ -92,7 +104,7 @@ class UserItemList(
     def get(self, request, *args, **kwargs):
         user = self.request.user
         items = user.products.all()
-        serializer = ItemSerializer(items, many=True)
+        serializer = GetUpdateItemSerializer(items, many=True)
         return Response(serializer.data)
 
 
@@ -107,11 +119,15 @@ class UserItemAddDelete(
     def post(self, request, *args, **kwargs):
         item_id = self.kwargs['vendor_code']
         item = Item.objects.get_or_none(vendor_code=item_id)
+        user = self.request.user
         if item is None:
-            serializer = UserSerializer(self.request.user)
+            serializer = UserSerializer(user)
             WildBerriesProductParser.delay(self.kwargs['pk'], serializer.data)
             return Response('Started process of adding item to your tracking list, it may take some time....',
                             status=status.HTTP_202_ACCEPTED)
+        elif item not in user.products.all():
+            user.products.add(item)
+            return Response('Item added', status=status.HTTP_200_OK)
         return Response('You already have item with this article in your tracking list', status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
