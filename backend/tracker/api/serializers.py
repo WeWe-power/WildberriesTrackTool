@@ -7,6 +7,7 @@ class GetUpdateItemSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     price = serializers.IntegerField(read_only=True)
     price_with_sale = serializers.IntegerField(read_only=True)
+    vendor_code = serializers.CharField(read_only=True)
     name = serializers.CharField(required=False)
     brand = serializers.CharField(required=False)
     provider = serializers.CharField(required=False)

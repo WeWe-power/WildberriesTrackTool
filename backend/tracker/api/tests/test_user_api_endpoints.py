@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
 from tracker.models import Item, ItemPriceRecord, User
-from tracker.api.serializers import ItemSerializer, ItemPriceRecordSerializer, UserSerializer
+from tracker.api.serializers import GetUpdateItemSerializer, ItemPriceRecordSerializer, UserSerializer
 
 client = Client()
 
@@ -70,7 +70,7 @@ class ItemsApiEndpointsTest(TestCase):
     def test_get_user_items_from_track_list(self):
         self.user.products.add(self.item)
         response = client.get(reverse('user-items'), **self.auth)
-        serializer = ItemSerializer(self.item)
+        serializer = GetUpdateItemSerializer(self.item)
         self.assertEqual(response.json()[0], serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
