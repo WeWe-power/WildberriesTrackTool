@@ -1,3 +1,4 @@
+from django.utils.dateformat import format
 from rest_framework import generics, mixins, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -6,8 +7,8 @@ from rest_framework import status
 from tracker.api.serializers import GetUpdateItemSerializer, CreateDeleteItemSerializer, UserSerializer, \
     ItemPriceRecordSerializer
 from tracker.models import Item, User
-
 from tracker.tasks import Parser
+from tracker.services import get_time
 
 WildBerriesProductParser = Parser()
 
@@ -161,11 +162,21 @@ class GetItemPriceHistory(
 
     def get(self, request, *args, **kwargs):
         vendor_code = self.kwargs['vendor_code']
+        date_formats = ["%d/%m/%Y", "%m/%Y", "%Y"]
+
+        start_time = get_time(self.request.query_params.get('start_time'), date_formats)
+        end_time = get_time(self.request.query_params.get('end_time'), date_formats)
+        if end_time is None or start_time is None:
+            return Response('Invalid data')
+
         item = Item.objects.get_or_none(vendor_code=vendor_code)
         if item is None:
             return Response('Item with vendor code {} not found'.format(vendor_code), status=status.HTTP_404_NOT_FOUND)
+
         prices_dict = {}
-        for item_price_record in item.price_info.order_by('-time_parsed'):
-            serializer = ItemPriceRecordSerializer(item_price_record)
-            prices_dict[str(item_price_record.time_parsed)] = serializer.data
+        for item_price_record in item.price_info.order_by('time_parsed'):
+            item_price_record_date = format(item_price_record.time_parsed, 'U')
+            if start_time < float(item_price_record_date) < end_time:
+                serializer = ItemPriceRecordSerializer(item_price_record)
+                prices_dict[str(item_price_record.time_parsed)] = serializer.data
         return Response(prices_dict)

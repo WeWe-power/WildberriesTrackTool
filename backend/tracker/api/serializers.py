@@ -55,4 +55,4 @@ class UserSerializer(serializers.ModelSerializer):
 class ItemPriceRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemPriceRecord
-        fields = ['name', 'brand', 'vendor_code', 'price', 'price_with_sale']
+        fields = ['name', 'brand', 'vendor_code', 'price', 'price_with_sale', 'time_parsed']
